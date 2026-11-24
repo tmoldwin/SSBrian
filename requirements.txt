@@ -1,0 +1,10 @@
+brian2
+numpy
+scipy
+pandas
+matplotlib
+seaborn
+networkx
+scikit-learn
+dill
+umap-learn

@@ -1,0 +1,77 @@
+{
+  "name": "test_motif_connectivity",
+  "description": "Test network with reciprocal E-I motif enhancement",
+  "num_stimuli": 10,
+  "num_epochs": 3,
+  "stim_duration": 250,
+  "break_time": 50,
+  "start_time": 100,
+  "base_weight_scale": 1.0,
+  "weight_scale_method": "sqrt_k",
+  "inhibitory_weight_scale": 25.0,
+  "input_amplitude_scale": 1.0,
+  "stimulus_distribution": "dirichlet",
+  "stimulus_alpha": 0.5,
+  "scale_factor": 1000.0,
+  "simulation_params": {
+    "tau_m_ms": 20.0,
+    "tau_syn_ms": 1.0,
+    "R_m_Mohm": 100.0,
+    "v_rest_mV": -65.0,
+    "v_thresh_mV": -55.0,
+    "v_reset_mV": -65.0,
+    "refractory_ms": 2.0
+  },
+  "input_layer": {
+    "n": 100,
+    "name": "Layer0"
+  },
+  "populations": [
+    {"name": "L1_E", "n": 80, "type": "E"},
+    {"name": "L1_I", "n": 20, "type": "I"},
+    {"name": "L2_E", "n": 80, "type": "E"},
+    {"name": "L2_I", "n": 20, "type": "I"}
+  ],
+  "connections": [
+    {"source": "Layer0", "target": "L1_E", "p": 0.5, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "Layer0", "target": "L1_I", "p": 0.5, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    
+    {"source": "L1_E", "target": "L1_E", "p": 0.15, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L1_E", "target": "L1_I", "p": 0.25, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L1_I", "target": "L1_E", "p": 0.25, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L1_I", "target": "L1_I", "p": 0.15, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    
+    {"source": "L2_E", "target": "L2_E", "p": 0.15, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L2_E", "target": "L2_I", "p": 0.25, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L2_I", "target": "L2_E", "p": 0.25, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L2_I", "target": "L2_I", "p": 0.15, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    
+    {"source": "L1_E", "target": "L2_E", "p": 0.3, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L1_E", "target": "L2_I", "p": 0.25, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L1_I", "target": "L2_E", "p": 0.2, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L1_I", "target": "L2_I", "p": 0.2, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}}
+  ],
+  "motif_constraints": [
+    {
+      "name": "reciprocal_EI_within_layer",
+      "type": "reciprocal",
+      "node_filters": {
+        "A": {"type": "E"},
+        "B": {"type": "I"}
+      },
+      "enhancement": 3.0,
+      "_comment": "E->I and I->E connections are 3x more likely to be reciprocal than chance"
+    },
+    {
+      "name": "reciprocal_E_recurrent",
+      "type": "reciprocal",
+      "node_filters": {
+        "A": {"type": "E"},
+        "B": {"type": "E"}
+      },
+      "enhancement": 2.0,
+      "_comment": "E->E recurrent connections are 2x more likely to be reciprocal"
+    }
+  ]
+}
+

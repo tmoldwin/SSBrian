@@ -1,0 +1,41 @@
+{
+  "name": "motif_baseline",
+  "description": "E/I network baseline - no motif constraints",
+  "num_stimuli": 50,
+  "num_epochs": 3,
+  "stim_duration": 200,
+  "break_time": 50,
+  "start_time": 50,
+  "base_weight_scale": 1.0,
+  "weight_scale_method": "sqrt_k",
+  "inhibitory_weight_scale": 25.0,
+  "input_amplitude_scale": 1.0,
+  "stimulus_distribution": "dirichlet",
+  "stimulus_alpha": 0.5,
+  "scale_factor": 1000.0,
+  "simulation_params": {
+    "tau_m_ms": 20.0,
+    "tau_syn_ms": 1.0,
+    "R_m_Mohm": 100.0,
+    "v_rest_mV": -65.0,
+    "v_thresh_mV": -55.0,
+    "v_reset_mV": -65.0,
+    "refractory_ms": 2.0
+  },
+  "input_layer": {
+    "n": 50,
+    "name": "Layer0"
+  },
+  "populations": [
+    {"name": "E", "n": 80, "type": "E"},
+    {"name": "I", "n": 20, "type": "I"}
+  ],
+  "connections": [
+    {"source": "Layer0", "target": "E", "p": 0.5, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "Layer0", "target": "I", "p": 0.5, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "E", "target": "E", "p": 0.2, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "E", "target": "I", "p": 0.3, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "I", "target": "E", "p": 0.3, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "I", "target": "I", "p": 0.2, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}}
+  ]
+}

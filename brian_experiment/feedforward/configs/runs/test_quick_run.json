@@ -1,0 +1,23 @@
+{
+  "name": "test_quick_run",
+  "description": "Quick test run with 2 epochs and 100 stimuli.",
+  "num_stimuli": 100,
+  "num_epochs": 2,
+  "n_rec_e": 200,
+  "n_rec_i": 200,
+  "n_external_input_dims": 200,
+  "stim_duration": 250,
+  "break_time": 20,
+  "start_time": 100,
+  "base_weight_scale": 1.0,
+  "weight_scale_method": "sqrt_k",
+  "inhibitory_weight_scale": 5.0,
+  "input_amplitude_scale": 1.0,
+  "stimulus_distribution": "dirichlet",
+  "stimulus_alpha": 0.5,
+  "probabilistic_input": true,
+  "unitary_current_nA": 1.0,
+  "disable_recurrent": false,
+  "load_existing_data": false
+}
+

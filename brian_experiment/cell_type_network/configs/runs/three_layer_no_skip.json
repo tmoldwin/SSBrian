@@ -1,0 +1,59 @@
+{
+  "name": "three_layer_no_skip",
+  "description": "Three-layer network without skip connections (standard feedforward only).",
+  "num_stimuli": 5,
+  "num_epochs": 2,
+  "stim_duration": 250,
+  "break_time": 50,
+  "start_time": 100,
+  "base_weight_scale": 0.6,
+  "weight_scale_method": "sqrt_k",
+  "inhibitory_weight_scale": 25.0,
+  "input_amplitude_scale": 5.0,
+  "stimulus_distribution": "dirichlet",
+  "stimulus_alpha": 0.5,
+  "scale_factor": 1000.0,
+  "simulation_params": {
+    "tau_m_ms": 20.0,
+    "tau_syn_ms": 1.0,
+    "R_m_Mohm": 100.0,
+    "v_rest_mV": -65.0,
+    "v_thresh_mV": -55.0,
+    "v_reset_mV": -65.0,
+    "refractory_ms": 2.0
+  },
+  "input_layer": {
+    "n": 100,
+    "name": "Layer0"
+  },
+  "populations": [
+    {"name": "L1_E", "n": 200, "type": "E"},
+    {"name": "L1_I", "n": 50, "type": "I"},
+    {"name": "L2_E", "n": 200, "type": "E"},
+    {"name": "L2_I", "n": 50, "type": "I"},
+    {"name": "L3_E", "n": 200, "type": "E"},
+    {"name": "L3_I", "n": 50, "type": "I"}
+  ],
+  "connections": [
+    {"source": "Layer0", "target": "L1_E", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L1_E", "target": "L1_E", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L1_E", "target": "L1_I", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L1_I", "target": "L1_E", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L1_I", "target": "L1_I", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L1_E", "target": "L2_E", "p": 0.05, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L2_E", "target": "L2_E", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L2_E", "target": "L2_I", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L2_I", "target": "L2_E", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L2_I", "target": "L2_I", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L2_E", "target": "L3_E", "p": 0.05, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L3_E", "target": "L3_E", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 1.0}},
+    {"source": "L3_E", "target": "L3_I", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L3_I", "target": "L3_E", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}},
+    {"source": "L3_I", "target": "L3_I", "p": 0.1, "weight_dist": {"dist": "lognormal", "mu": 0.0, "sigma": 0.5}}
+  ]
+}
+
+
+
+
+

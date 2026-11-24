@@ -1,0 +1,41 @@
+Direct Input RNN Simulation Run Parameters
+=============================================
+Run Timestamp: 2025-08-26 17:07:35
+Configuration Type: stimuli_100
+
+Configuration Parameters:
+=========================
+num_epochs: 5
+N_rec_E: 100
+N_rec_I: 100
+N_external_input_dims: 100
+stim_list: [ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+ 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+ 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71
+ 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95
+ 96 97 98 99]
+
+Fixed Parameters:
+=================
+stim_duration: 100
+break_time: 20
+start_time: 100
+base_weight_scale: 1
+weight_scale_method: sqrt_k
+inhibitory_weight_scale: 5
+input_amplitude_scale: 1.0
+stimulus_distribution: dirichlet
+stimulus_alpha: 0.5
+stimulus_scale_factor: 1.0
+probabilistic_input: True
+unitary_current_nA: 1.0
+NUM_STIMULI: 100
+DISABLE_RECURRENT_CONNECTIONS: True
+
+Derived Parameters:
+===================
+Total neurons: 200
+Total input dimensions: 100
+Stimuli count: 100
+Epoch duration: 12000 ms
+Total simulation time: 60100 ms

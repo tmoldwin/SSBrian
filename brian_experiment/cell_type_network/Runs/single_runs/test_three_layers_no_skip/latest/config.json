@@ -1,0 +1,63 @@
+{
+  "name": "test_three_layers_no_skip",
+  "description": "Three layer network with no skip connections - strict hierarchy: Layer0→L1→L2→L3. Within-layer inhibition only, increased recurrent and feedforward weights.",
+  "num_stimuli": 10,
+  "num_epochs": 2,
+  "stim_duration": 1000,
+  "break_time": 50,
+  "start_time": 100,
+  "base_weight_scale": 1.0,
+  "weight_scale_method": "sqrt_k",
+  "inhibitory_weight_scale": 25.0,
+  "input_amplitude_scale": 1.0,
+  "stimulus_distribution": "dirichlet",
+  "stimulus_alpha": 0.5,
+  "scale_factor": 1000.0,
+  "simulation_params": {
+    "tau_m_ms": 20.0,
+    "tau_syn_ms": 1.0,
+    "R_m_Mohm": 100.0,
+    "v_rest_mV": -65.0,
+    "v_thresh_mV": -55.0,
+    "v_reset_mV": -65.0,
+    "refractory_ms": 2.0
+  },
+  "input_layer": {
+    "n": 200,
+    "name": "Layer0"
+  },
+  "populations": [
+    {"name": "L1_E", "n": 100, "type": "E"},
+    {"name": "L1_I", "n": 100, "type": "I"},
+    {"name": "L2_E", "n": 80, "type": "E"},
+    {"name": "L2_I", "n": 80, "type": "I"},
+    {"name": "L3_E", "n": 60, "type": "E"},
+    {"name": "L3_I", "n": 60, "type": "I"}
+  ],
+  "connections": [
+    {"source": "Layer0", "target": "L1_E", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "Layer0", "target": "L1_I", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    
+    {"source": "L1_E", "target": "L1_E", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L1_E", "target": "L1_I", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L1_I", "target": "L1_E", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L1_I", "target": "L1_I", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    
+    {"source": "L1_E", "target": "L2_E", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L1_E", "target": "L2_I", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    
+    {"source": "L2_E", "target": "L2_E", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L2_E", "target": "L2_I", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L2_I", "target": "L2_E", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L2_I", "target": "L2_I", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    
+    {"source": "L2_E", "target": "L3_E", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L2_E", "target": "L3_I", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    
+    {"source": "L3_E", "target": "L3_E", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L3_E", "target": "L3_I", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L3_I", "target": "L3_E", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}},
+    {"source": "L3_I", "target": "L3_I", "p": 1.0, "weight_dist": {"dist": "lognormal", "mu": 0.5, "sigma": 1.0}}
+  ]
+}
+

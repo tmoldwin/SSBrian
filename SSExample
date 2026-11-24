@@ -1,0 +1,365 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
+import random
+import os
+from skimage import data
+
+
+# Set random seed for reproducibility
+np.random.seed(42)
+
+# Constants
+N_STIMULI = 2  # Number of distinct stimuli
+N_REPEATS = 2  # How many times each stimulus appears (only for consistency demo)
+N_TOTAL_COLS_SPARSITY = N_STIMULI  # Total columns for sparsity demo (no repeats)
+N_TOTAL_COLS_CONSISTENCY = N_STIMULI * N_REPEATS  # Total columns for consistency demo (with repeats)
+N_CIRCLES = 16  # Number of neurons (using smaller grid for clearer visualization)
+N_ACTIVE_SPARSE = 3
+N_ACTIVE_DENSE = 9
+
+# Get sample images - just 2 distinct ones
+signal_images = [
+    data.camera(),  # Image 1
+    data.coffee()   # Image 2
+]
+
+# Generate grid positions once
+grid_size = int(np.ceil(np.sqrt(N_CIRCLES)))
+spacing = 0.8 / (grid_size - 1)
+start = 0.1
+
+circle_positions = []
+for i in range(grid_size):
+    for j in range(grid_size):
+        if len(circle_positions) < N_CIRCLES:
+            x = start + i * spacing
+            y = start + j * spacing
+            circle_positions.append((x, y))
+
+def generate_sparsity_selectivity_patterns(is_sparse, is_selective):
+    """Generate hardcoded patterns for sparsity/selectivity example."""
+    n_active = N_ACTIVE_SPARSE if is_sparse else N_ACTIVE_DENSE
+    
+    if is_sparse and is_selective:
+        # Sparse & Selective: No overlap between stimuli
+        pattern_stim1 = [True, True, True] + [False] * (N_CIRCLES - 3)
+        pattern_stim2 = [False] * 3 + [True, True, True] + [False] * (N_CIRCLES - 6)
+        return [pattern_stim1, pattern_stim2]
+    
+    elif is_sparse and not is_selective:
+        # Sparse & Non-selective: ~50% overlap (1 out of 3 neurons overlaps)
+        pattern_stim1 = [True, True, True] + [False] * (N_CIRCLES - 3)
+        pattern_stim2 = [False, True, False] + [True, True] + [False] * (N_CIRCLES - 5)  # neuron 1 overlaps
+        return [pattern_stim1, pattern_stim2]
+    
+    elif not is_sparse and is_selective:
+        # Dense & Selective: No overlap between stimuli
+        pattern_stim1 = [True] * 6 + [False] * (N_CIRCLES - 6)
+        pattern_stim2 = [False] * 6 + [True] * 6 + [False] * (N_CIRCLES - 12)
+        return [pattern_stim1, pattern_stim2]
+    
+    else:
+        # Dense & Non-selective: ~50% overlap (3 out of 6 neurons overlap)
+        pattern_stim1 = [True] * 6 + [False] * (N_CIRCLES - 6)
+        pattern_stim2 = [True, True, True] + [False] * 3 + [True, True, True] + [False] * (N_CIRCLES - 9)  # neurons 0,1,2 overlap
+        return [pattern_stim1, pattern_stim2]
+
+def generate_selectivity_consistency_patterns(is_selective, is_consistent):
+    """Generate hardcoded patterns for selectivity/consistency example with 7 active neurons."""
+    
+    if is_selective and is_consistent:
+        # High Selectivity & High Consistency: Same pattern for repeated stimuli, no overlap between different stimuli
+        pattern_stim1 = [True] * 7 + [False] * (N_CIRCLES - 7)  # neurons 0-6 active
+        pattern_stim2 = [False] * 7 + [True] * 7 + [False] * (N_CIRCLES - 14)  # neurons 7-13 active
+        return [pattern_stim1, pattern_stim1, pattern_stim2, pattern_stim2]  # 0,0,1,1
+    
+    elif is_selective and not is_consistent:
+        # High Selectivity & Low Consistency: Different patterns for same stimulus (inconsistent)
+        pattern_stim1_rep1 = [True] * 7 + [False] * (N_CIRCLES - 7)  # neurons 0-6 active
+        pattern_stim1_rep2 = [True, True, False, True, True, True, True, True] + [False] * (N_CIRCLES - 8)  # neuron 2 inconsistent, neuron 7 added
+        pattern_stim2_rep1 = [False] * 8 + [True] * 7 + [False] * (N_CIRCLES - 15)  # neurons 8-14 active
+        pattern_stim2_rep2 = [False] * 8 + [True, False, True, True, True, True, True, True] + [False] * (N_CIRCLES - 16)  # neuron 9 inconsistent, neuron 15 added
+        return [pattern_stim1_rep1, pattern_stim1_rep2, pattern_stim2_rep1, pattern_stim2_rep2]
+    
+    elif not is_selective and is_consistent:
+        # Low Selectivity & High Consistency: Same overlapping pattern for both stimuli (consistent but not selective)
+        pattern_overlap = [True] * 7 + [False] * (N_CIRCLES - 7)  # same pattern for both stimuli
+        return [pattern_overlap, pattern_overlap, pattern_overlap, pattern_overlap]
+    
+    else:
+        # Low Selectivity & Low Consistency: Overlapping and inconsistent patterns
+        pattern1 = [True] * 7 + [False] * (N_CIRCLES - 7)  # stim1 rep1: neurons 0-6
+        pattern2 = [True, True, False, True, True, True, True, True] + [False] * (N_CIRCLES - 8)  # stim1 rep2: neuron 2 inconsistent, neuron 7 added
+        pattern3 = [True, True, True, True] + [False] * 3 + [True] * 3 + [False] * (N_CIRCLES - 10)  # stim2 rep1: overlap with stim1 (0-3) + new (7-9)
+        pattern4 = [True, False, True, True] + [False] * 3 + [True, False, True, True] + [False] * (N_CIRCLES - 10)  # stim2 rep2: inconsistent from rep1
+        return [pattern1, pattern2, pattern3, pattern4]
+
+def find_overlapping_neurons(activations):
+    """Find neurons that are active in multiple columns within the same row."""
+    overlaps = set()
+    n_cols = len(activations)
+    n_neurons = len(activations[0])
+    
+    # For sparsity demo: check overlaps between all columns (different stimuli)
+    if n_cols == 2:  # Sparsity demo
+        for neuron_idx in range(n_neurons):
+            if activations[0][neuron_idx] and activations[1][neuron_idx]:
+                overlaps.add(neuron_idx)
+    
+    # For consistency demo: check overlaps between different stimuli (not repeated presentations)
+    elif n_cols == 4:  # Consistency demo
+        for neuron_idx in range(n_neurons):
+            # Check if neuron is active for both stimulus 1 and stimulus 2
+            # Stimulus 1: columns 0,1  Stimulus 2: columns 2,3
+            stim1_active = activations[0][neuron_idx] or activations[1][neuron_idx]
+            stim2_active = activations[2][neuron_idx] or activations[3][neuron_idx]
+            if stim1_active and stim2_active:
+                overlaps.add(neuron_idx)
+    
+    return overlaps
+
+def find_inconsistent_neurons_by_trial(activations):
+    """Find specific trials where neurons are inconsistent between repeated presentations."""
+    inconsistent_trials = {}  # {neuron_idx: [list of trial indices where inconsistent]}
+    n_neurons = len(activations[0])
+    
+    # For consistency demo: compare pairs of repeated stimuli
+    # Columns 0,1 are stimulus 1 repeated, columns 2,3 are stimulus 2 repeated
+    for neuron_idx in range(n_neurons):
+        inconsistent_trials[neuron_idx] = []
+        
+        # Check if neuron response differs between repetitions of stimulus 1
+        if activations[0][neuron_idx] != activations[1][neuron_idx]:
+            inconsistent_trials[neuron_idx].extend([0, 1])  # Both trials of stimulus 1
+        
+        # Check if neuron response differs between repetitions of stimulus 2  
+        if activations[2][neuron_idx] != activations[3][neuron_idx]:
+            inconsistent_trials[neuron_idx].extend([2, 3])  # Both trials of stimulus 2
+    
+    return inconsistent_trials
+
+def plot_sparsity_selectivity_example():
+    """Create figure showing combinations of sparsity and selectivity."""
+    fig, axs = plt.subplots(5, N_TOTAL_COLS_SPARSITY, figsize=(12, 12))
+    plt.subplots_adjust(hspace=0.3, wspace=0.3)
+
+    # Plot images in stimulus row - each image appears only once (no repeats for sparsity/selectivity demo)
+    for col in range(N_TOTAL_COLS_SPARSITY):
+        ax = axs[0, col]
+        image = signal_images[col]  # Just use col directly: 0,1,2
+        ax.imshow(image, cmap='gray')
+        ax.axis('off')
+
+    # Row configurations: (sparse, selective)
+    configs = [(0, 0), (0, 1), (1, 0), (1, 1)]
+
+    # Plot circles in each panel
+    for row in range(1, 5):  # Skip first row (for stimuli)
+        activations = generate_sparsity_selectivity_patterns(*configs[row-1])
+        overlapping_neurons = find_overlapping_neurons(activations)
+        
+        for col in range(N_TOTAL_COLS_SPARSITY):
+            ax = axs[row, col]
+            ax.set_aspect('equal')
+            ax.axis('off')
+            
+            # Draw circles
+            for neuron_idx, ((x, y), is_active) in enumerate(zip(circle_positions, activations[col])):
+                circle = Circle((x, y), 0.05, 
+                              facecolor='lightgray' if is_active else 'white',
+                              edgecolor='black')
+                ax.add_patch(circle)
+                
+                # Add red X for overlapping neurons that are active
+                if is_active and neuron_idx in overlapping_neurons:
+                    ax.plot([x-0.03, x+0.03], [y-0.03, y+0.03], 'r-', linewidth=3)
+                    ax.plot([x-0.03, x+0.03], [y+0.03, y-0.03], 'r-', linewidth=3)
+                    
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+
+    # Add row labels
+    row_labels = ['Stimuli', 
+                  'Dense\nNon-selective',
+                  'Dense\nSelective',
+                  'Sparse\nNon-selective',
+                  'Sparse\nSelective']
+
+    for row, label in enumerate(row_labels):
+        fig.text(0.02, 0.85 - (row * 0.17), label, 
+                ha='left', va='center', 
+                fontsize=12, fontweight='bold')
+    
+    # Save the figure
+    os.makedirs('Figures/SSDemo', exist_ok=True)
+    plt.savefig('Figures/SSDemo/sparsity_selectivity_demo.png', dpi=300, bbox_inches='tight')
+    print("Saved sparsity/selectivity demo to Figures/SSDemo/sparsity_selectivity_demo.png")
+
+def plot_selectivity_consistency_example():
+    """Create figure showing combinations of selectivity and consistency."""
+    # Create figure
+    fig, axs = plt.subplots(5, N_TOTAL_COLS_CONSISTENCY, figsize=(20, 12))
+    plt.subplots_adjust(hspace=0.3, wspace=0.3)
+
+    # Plot images in stimulus row - each image appears exactly twice
+    for col in range(N_TOTAL_COLS_CONSISTENCY):
+        ax = axs[0, col]
+        image_idx = col // N_REPEATS  # This gives: 0,0,1,1,2,2
+        image = signal_images[image_idx]
+        ax.imshow(image, cmap='gray')
+        ax.axis('off')
+
+    # Row configurations: (selective, consistent)
+    configs = [(0, 0), (0, 1), (1, 0), (1, 1)]
+
+    # Plot circles in each panel
+    for row in range(1, 5):  # Skip first row (for stimuli)
+        activations = generate_selectivity_consistency_patterns(*configs[row-1])
+        overlapping_neurons = find_overlapping_neurons(activations)  # Red X: selectivity violations between different stimuli
+        inconsistent_neurons = find_inconsistent_neurons(activations)  # Blue X: consistency violations between same stimuli
+        
+        for col in range(N_TOTAL_COLS_CONSISTENCY):
+            ax = axs[row, col]
+            ax.set_aspect('equal')
+            ax.axis('off')
+            
+            # Draw circles
+            for neuron_idx, ((x, y), is_active) in enumerate(zip(circle_positions, activations[col])):
+                circle = Circle((x, y), 0.05, 
+                              facecolor='lightgray' if is_active else 'white',
+                              edgecolor='black')
+                ax.add_patch(circle)
+                
+                # Add red X for overlapping neurons between different stimuli (selectivity violations)
+                if is_active and neuron_idx in overlapping_neurons:
+                    ax.plot([x-0.03, x+0.03], [y-0.03, y+0.03], 'r-', linewidth=3)
+                    ax.plot([x-0.03, x+0.03], [y+0.03, y-0.03], 'r-', linewidth=3)
+                
+                # Add blue X for inconsistent neurons between same stimuli (consistency violations)
+                if neuron_idx in inconsistent_neurons:
+                    ax.plot([x-0.025, x+0.025], [y-0.025, y+0.025], 'b-', linewidth=2)
+                    ax.plot([x-0.025, x+0.025], [y+0.025, y-0.025], 'b-', linewidth=2)
+                    
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+
+    # Add row labels
+    row_labels = ['Stimuli', 
+                  'Low Selectivity\nLow Consistency',
+                  'Low Selectivity\nHigh Consistency',
+                  'High Selectivity\nLow Consistency',
+                  'High Selectivity\nHigh Consistency']
+
+    for row, label in enumerate(row_labels):
+        fig.text(0.02, 0.85 - (row * 0.17), label, 
+                ha='left', va='center', 
+                fontsize=12, fontweight='bold')
+    
+    # Save the figure
+    os.makedirs('Figures/SSDemo', exist_ok=True)
+    plt.savefig('Figures/SSDemo/selectivity_consistency_demo.png', dpi=300, bbox_inches='tight')
+    print("Saved selectivity/consistency demo to Figures/SSDemo/selectivity_consistency_demo.png")
+
+def plot_unified_demo():
+    """Create unified figure showing sparsity, selectivity, and consistency together."""
+    fig, axs = plt.subplots(3, N_TOTAL_COLS_CONSISTENCY, figsize=(16, 10))
+    plt.subplots_adjust(hspace=0.4, wspace=0.3)
+    
+    # Plot images in stimulus row - each image appears twice for consistency analysis
+    for col in range(N_TOTAL_COLS_CONSISTENCY):
+        ax = axs[0, col]
+        image_idx = col // N_REPEATS  # This gives: 0,0,1,1
+        image = signal_images[image_idx]
+        ax.imshow(image, cmap='gray')
+        ax.axis('off')
+    
+    # Generate patterns for dense and sparse cases with selectivity/consistency violations
+    def generate_unified_patterns(is_sparse):
+        n_active = N_ACTIVE_SPARSE if is_sparse else N_ACTIVE_DENSE
+        
+        if is_sparse:
+            # Sparse patterns (3 neurons active per stimulus)
+            pattern_s1_t1 = [True, True, False, False, False, False, False, False, False, False, False, False, False, False, False, True]  # neurons 0,1,15
+            pattern_s1_t2 = [True, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True]  # neuron 1 inconsistent (active->inactive)
+            pattern_s2_t1 = [False, True, False, True, True, False, False, False, False, False, False, False, False, False, False, True]  # neuron 1,15 overlaps (selectivity violation), neurons 3,4
+            pattern_s2_t2 = [False, True, False, True, True, False, False, False, False, False, False, False, False, False, False, False]  # neuron 15 inconsistent (active->inactive)
+            return [pattern_s1_t1, pattern_s1_t2, pattern_s2_t1, pattern_s2_t2]
+        else:
+            # Dense patterns (9 neurons active per stimulus)
+            pattern_s1_t1 = [True, True, True, True, True, True, True, True, True, False, False, False, False, False, False, True]  # neurons 0-8,15
+            pattern_s1_t2 = [True, True, False, True, True, True, True, True, True, False, False, False, False, False, False, True]  # neuron 2 inconsistent (active->inactive)
+            pattern_s2_t1 = [True, True, True, False, False, False, True, True, True, True, True, True, False, False, False, True]  # neurons 0,1,2,15 overlap (selectivity violation), neurons 6-11
+            pattern_s2_t2 = [True, True, True, False, False, False, True, False, True, True, True, True, False, False, False, True]  # neuron 7 inconsistent (active->inactive)
+            return [pattern_s1_t1, pattern_s1_t2, pattern_s2_t1, pattern_s2_t2]
+    
+    # Row configurations: Dense, Sparse
+    for row in range(1, 3):
+        is_sparse = (row == 2)
+        activations = generate_unified_patterns(is_sparse)
+        overlapping_neurons = find_overlapping_neurons(activations)  # Red X: selectivity violations
+        inconsistent_trials = find_inconsistent_neurons_by_trial(activations)  # Blue X: consistency violations by trial
+        
+        for col in range(N_TOTAL_COLS_CONSISTENCY):
+            ax = axs[row, col]
+            ax.set_aspect('equal')
+            ax.axis('off')
+            
+            # Draw circles
+            for neuron_idx, ((x, y), is_active) in enumerate(zip(circle_positions, activations[col])):
+                circle = Circle((x, y), 0.05, 
+                              facecolor='lightgray' if is_active else 'white',
+                              edgecolor='black')
+                ax.add_patch(circle)
+                
+                # Determine marker color
+                has_selectivity_violation = is_active and neuron_idx in overlapping_neurons
+                has_consistency_violation = col in inconsistent_trials.get(neuron_idx, [])
+                
+                if has_selectivity_violation and has_consistency_violation:
+                    # Purple X for both violations
+                    ax.plot([x-0.03, x+0.03], [y-0.03, y+0.03], 'purple', linewidth=3)
+                    ax.plot([x-0.03, x+0.03], [y+0.03, y-0.03], 'purple', linewidth=3)
+                elif has_selectivity_violation:
+                    # Red X for selectivity violation only
+                    ax.plot([x-0.03, x+0.03], [y-0.03, y+0.03], 'r-', linewidth=3)
+                    ax.plot([x-0.03, x+0.03], [y+0.03, y-0.03], 'r-', linewidth=3)
+                elif has_consistency_violation:
+                    # Blue X for consistency violation only
+                    ax.plot([x-0.025, x+0.025], [y-0.025, y+0.025], 'b-', linewidth=2)
+                    ax.plot([x-0.025, x+0.025], [y+0.025, y-0.025], 'b-', linewidth=2)
+                    
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+    
+    # Add row labels
+    row_labels = ['Stimuli', 'Dense', 'Sparse']
+    
+    for row, label in enumerate(row_labels):
+        fig.text(0.02, 0.85 - (row * 0.35), label, 
+                ha='left', va='center', 
+                fontsize=14, fontweight='bold')
+    
+    # Create proper matplotlib legend
+    from matplotlib.lines import Line2D
+    legend_elements = [
+        Line2D([0], [0], marker='o', color='w', markerfacecolor='white', markeredgecolor='black', markersize=10, linestyle='None', label='Inactive'),
+        Line2D([0], [0], marker='o', color='w', markerfacecolor='lightgray', markeredgecolor='black', markersize=10, linestyle='None', label='Active'),
+        Line2D([0], [0], marker='x', color='red', markersize=10, linestyle='None', label='Low Selectivity'),
+        Line2D([0], [0], marker='x', color='blue', markersize=10, linestyle='None', label='Low Consistency'),
+        Line2D([0], [0], marker='x', color='purple', markersize=10, linestyle='None', label='Both Violations')
+    ]
+    
+    fig.legend(handles=legend_elements, loc='upper center', ncol=5, bbox_to_anchor=(0.5, 0.98), fontsize=11)
+    
+    # Save the figure
+    os.makedirs('Figures/SSDemo', exist_ok=True)
+    plt.savefig('Figures/SSDemo/unified_demo.png', dpi=300, bbox_inches='tight')
+    print("Saved unified demo to Figures/SSDemo/unified_demo.png")
+
+# Create unified figure
+plot_unified_demo()
+plt.show()
+
+print("Unified demo figure saved to Figures/SSDemo/ directory")
+

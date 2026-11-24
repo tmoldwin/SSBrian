@@ -1,0 +1,20 @@
+{
+  "name": "plasticity_demo",
+  "random_seed": 42,
+  "n_rec_e": 50,
+  "n_rec_i": 50,
+  "n_external_input_dims": 100,
+  "simulation_duration": 2000,
+  "stimulus_id": 0,
+  "base_weight_scale": 1.0,
+  "weight_scale_method": "sqrt_k",
+  "inhibitory_weight_scale": 5.0,
+  "input_amplitude_scale": 1.0,
+  "stimulus_distribution": "dirichlet",
+  "stimulus_alpha": 0.5,
+  "probabilistic_input": true,
+  "unitary_current_nA": 1.0,
+  "weight_monitoring_dt_ms": 10,
+  "plasticity_type": "hebbian"
+}
+

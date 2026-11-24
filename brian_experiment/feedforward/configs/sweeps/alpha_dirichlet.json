@@ -1,0 +1,32 @@
+﻿{
+  "name": "alpha_dirichlet",
+  "sweep_name": "alpha_dirichlet",
+  "description": "Sweep over Dirichlet alpha values for stimulus patterns",
+  "sweep_type": "list",
+  "alpha_values": [0.005, 0.05, 0.5, 5.0],
+  "base_params": {
+    "NUM_STIMULI": 100,
+    "NUM_EPOCHS": 1,
+    "N_rec_E": 100,
+    "N_rec_I": 100,
+    "N_external_input_dims": 100,
+    "stim_duration": 100,
+    "break_time": 20,
+    "start_time": 100,
+    "base_weight_scale": 1.0,
+    "weight_scale_method": "sqrt_k",
+    "inhibitory_weight_scale": 5.0,
+    "input_amplitude_scale": 1.0,
+    "stimulus_distribution": "dirichlet",
+    "stimulus_alpha": 0.5,
+    "probabilistic_input": true,
+    "unitary_current_nA": 1.0,
+    "disable_recurrent": false
+  },
+  "varied_params": {
+    "stimulus_alpha": [0.005, 0.05, 0.5, 5.0]
+  },
+  "random_seed": 42,
+  "n_runs_per_param": 1,
+  "generate_individual_plots": false
+}

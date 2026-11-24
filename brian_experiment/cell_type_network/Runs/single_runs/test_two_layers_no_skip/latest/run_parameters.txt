@@ -1,0 +1,24 @@
+Cell Type Network Simulation Run Parameters
+=============================================
+Run Timestamp: 2025-12-04 16:25:54
+Configuration Type: test_two_layers_no_skip
+
+Configuration Parameters:
+=========================
+input_layer: {'n': 200, 'name': 'Layer0'}
+populations: [{'name': 'L1_E', 'n': 100, 'type': 'E'}, {'name': 'L1_I', 'n': 100, 'type': 'I'}, {'name': 'L2_E', 'n': 80, 'type': 'E'}, {'name': 'L2_I', 'n': 80, 'type': 'I'}]
+connections: [{'source': 'Layer0', 'target': 'L1_E', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}, {'source': 'Layer0', 'target': 'L1_I', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}, {'source': 'L1_E', 'target': 'L1_E', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.5, 'sigma': 1.0}}, {'source': 'L1_E', 'target': 'L1_I', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.5, 'sigma': 1.0}}, {'source': 'L1_I', 'target': 'L1_E', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.5, 'sigma': 1.0}}, {'source': 'L1_I', 'target': 'L1_I', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.5, 'sigma': 1.0}}, {'source': 'L2_E', 'target': 'L2_E', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.5, 'sigma': 1.0}}, {'source': 'L2_E', 'target': 'L2_I', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.5, 'sigma': 1.0}}, {'source': 'L2_I', 'target': 'L2_E', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.5, 'sigma': 1.0}}, {'source': 'L2_I', 'target': 'L2_I', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.5, 'sigma': 1.0}}, {'source': 'L1_E', 'target': 'L2_E', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}, {'source': 'L1_E', 'target': 'L2_I', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}]
+
+Fixed Parameters:
+=================
+stim_duration: 1000
+break_time: 50
+start_time: 100
+stimulus_distribution: dirichlet
+stimulus_alpha: 0.5
+num_stimuli: 20
+num_epochs: 5
+base_weight_scale: 1.0
+weight_scale_method: sqrt_k
+inhibitory_weight_scale: 25.0
+input_amplitude_scale: 1.0

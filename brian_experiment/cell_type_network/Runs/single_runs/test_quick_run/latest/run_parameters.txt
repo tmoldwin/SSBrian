@@ -1,0 +1,24 @@
+Cell Type Network Simulation Run Parameters
+=============================================
+Run Timestamp: 2025-12-01 15:17:01
+Configuration Type: test_quick_run
+
+Configuration Parameters:
+=========================
+input_layer: {'n': 100, 'name': 'Layer0'}
+populations: [{'name': 'L1_E', 'n': 100, 'type': 'E'}, {'name': 'L1_I', 'n': 100, 'type': 'I'}]
+connections: [{'source': 'Layer0', 'target': 'L1_E', 'p': 1.0, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 0.5}}, {'source': 'L1_E', 'target': 'L1_E', 'p': 0.15, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}, {'source': 'L1_E', 'target': 'L1_I', 'p': 0.2, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 0.5}}, {'source': 'L1_I', 'target': 'L1_E', 'p': 0.15, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 0.5}}, {'source': 'L1_I', 'target': 'L1_I', 'p': 0.15, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 0.5}}]
+
+Fixed Parameters:
+=================
+stim_duration: 250
+break_time: 50
+start_time: 100
+stimulus_distribution: dirichlet
+stimulus_alpha: 0.5
+num_stimuli: 5
+num_epochs: 2
+base_weight_scale: 0.6
+weight_scale_method: sqrt_k
+inhibitory_weight_scale: 25.0
+input_amplitude_scale: 5.0

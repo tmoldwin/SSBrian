@@ -1,0 +1,36 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# GitHub Copilot persisted chat sessions
+/copilot/chatSessions
+/vcs.xml
+*.history/
+*.pyc
+.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VSCode Python import helper files
+.vscode/PythonImportHelper*.json
+
+# Generated figure outputs
+
+# Brian2CUDA generated files
+*.cu
+*.h
+
+# Output folders
+output/
+# Figures/ - Now included to track figures
+brian_experiment/recurrent/Runs/
+brian_experiment/feedforward/Runs/
+# brian_experiment/cell_type_network/Runs/ - Now included to track figures
+brian_experiment/Sweeps/
+brian_experiment/Runs/no_feedforward/*
+
+
+# Large data files
+*.pkl
+
+# Note: Figures are now included. To exclude large files (>5MB), add them manually or use git-lfs

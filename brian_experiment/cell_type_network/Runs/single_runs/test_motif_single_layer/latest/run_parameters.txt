@@ -1,0 +1,25 @@
+Cell Type Network Simulation Run Parameters
+=============================================
+Run Timestamp: 2026-01-04 13:55:11
+Configuration Type: test_motif_single_layer
+
+Configuration Parameters:
+=========================
+input_layer: {'n': 50, 'name': 'Layer0'}
+populations: [{'name': 'E', 'n': 80, 'type': 'E'}, {'name': 'I', 'n': 20, 'type': 'I'}]
+connections: [{'source': 'Layer0', 'target': 'E', 'p': 0.5, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}, {'source': 'Layer0', 'target': 'I', 'p': 0.5, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}, {'source': 'E', 'target': 'E', 'p': 0.2, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}, {'source': 'E', 'target': 'I', 'p': 0.3, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}, {'source': 'I', 'target': 'E', 'p': 0.3, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}, {'source': 'I', 'target': 'I', 'p': 0.2, 'weight_dist': {'dist': 'lognormal', 'mu': 0.0, 'sigma': 1.0}}]
+motif_constraints: [{'name': 'reciprocal_EI', 'type': 'reciprocal', 'node_filters': {'A': {'type': 'E'}, 'B': {'type': 'I'}}, 'enhancement': 3.0}, {'name': 'reciprocal_EE', 'type': 'reciprocal', 'node_filters': {'A': {'type': 'E'}, 'B': {'type': 'E'}}, 'enhancement': 2.0}]
+
+Fixed Parameters:
+=================
+stim_duration: 200
+break_time: 50
+start_time: 50
+stimulus_distribution: dirichlet
+stimulus_alpha: 0.5
+num_stimuli: 5
+num_epochs: 2
+base_weight_scale: 1.0
+weight_scale_method: sqrt_k
+inhibitory_weight_scale: 25.0
+input_amplitude_scale: 1.0
